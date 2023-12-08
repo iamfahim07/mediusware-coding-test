@@ -6,10 +6,15 @@ import ModalC from "./ModalC";
 export default function CustomModal({ title, contacts, handleClick, loading }) {
   const [showModalC, setShowModalC] = useState(false);
   const [country, setCountry] = useState("");
+  const [search, setSearch] = useState("");
   const [isChecked, setIsChecked] = useState(false);
 
   const handleEven = () => {
     setIsChecked(!isChecked);
+  };
+
+  const filterByNumber = (obj) => {
+    return search !== "" ? obj.phone.includes(search) : true;
   };
 
   const filterByEvenId = (obj) => {
@@ -20,7 +25,20 @@ export default function CustomModal({ title, contacts, handleClick, loading }) {
     <>
       <Modal show centered size="lg" scrollable onHide={() => handleClick("")}>
         <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
+          <Modal.Title>
+            {title}
+            <input
+              style={{
+                borderRadius: "8px",
+                position: "absolute",
+                right: "50px",
+              }}
+              type="text"
+              placeholder="search by number"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {loading && <p>Loading...</p>}
@@ -37,22 +55,25 @@ export default function CustomModal({ title, contacts, handleClick, loading }) {
                 </tr>
               </thead>
               <tbody>
-                {contacts.filter(filterByEvenId).map((obj) => {
-                  return (
-                    <tr
-                      key={Math.random()}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => {
-                        setCountry(obj.country.name);
-                        setShowModalC(true);
-                      }}
-                    >
-                      <td>{obj.id}</td>
-                      <td>{obj.phone}</td>
-                      <td>{obj.country.name}</td>
-                    </tr>
-                  );
-                })}
+                {contacts
+                  .filter(filterByNumber)
+                  .filter(filterByEvenId)
+                  .map((obj) => {
+                    return (
+                      <tr
+                        key={Math.random()}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setCountry(obj.country.name);
+                          setShowModalC(true);
+                        }}
+                      >
+                        <td>{obj.id}</td>
+                        <td>{obj.phone}</td>
+                        <td>{obj.country.name}</td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </Table>
           )}

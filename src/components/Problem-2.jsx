@@ -6,23 +6,31 @@ const Problem2 = () => {
   const [currentModal, setCurrentModal] = useState("");
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(20);
   const [title, setTitle] = useState("");
 
   const handleClick = (val) => setCurrentModal(val);
 
   useEffect(() => {
     async function fetchData() {
-      const url =
-        currentModal === "modalA"
-          ? "https://contact.mediusware.com/api/contacts/"
-          : "https://contact.mediusware.com/api/country-contacts/United States/";
       try {
-        const response = await fetch(url);
+        if (currentModal !== "") {
+          const url =
+            currentModal === "modalA"
+              ? `https://contact.mediusware.com/api/contacts/?page_size=${pageSize}`
+              : currentModal === "modalB"
+              ? "https://contact.mediusware.com/api/country-contacts/United States/"
+              : "";
 
-        const data = await response.json();
-        setContacts(data.results);
+          const response = await fetch(url);
+
+          const data = await response.json();
+          setContacts(data.results);
+        }
+
         setLoading(false);
       } catch (err) {
+        setLoading(false);
         console.error("Error fetching data:", err);
       }
     }
@@ -37,7 +45,7 @@ const Problem2 = () => {
     setTitle(currentTitle);
 
     fetchData();
-  }, [currentModal]);
+  }, [currentModal, pageSize]);
 
   return (
     <div className="container">
@@ -73,6 +81,7 @@ const Problem2 = () => {
           <CustomModal
             title={title}
             contacts={contacts}
+            setPageSize={setPageSize}
             handleClick={handleClick}
             loading={loading}
           />

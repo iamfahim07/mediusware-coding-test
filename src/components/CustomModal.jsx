@@ -1,13 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
 import ModalC from "./ModalC";
 
-export default function CustomModal({ title, contacts, handleClick, loading }) {
+export default function CustomModal({
+  title,
+  contacts,
+  setPageSize,
+  handleClick,
+  loading,
+}) {
   const [showModalC, setShowModalC] = useState(false);
   const [country, setCountry] = useState("");
   const [search, setSearch] = useState("");
   const [isChecked, setIsChecked] = useState(false);
+
+  const divRef = useRef(null);
 
   const handleEven = () => {
     setIsChecked(!isChecked);
@@ -20,6 +28,23 @@ export default function CustomModal({ title, contacts, handleClick, loading }) {
   const filterByEvenId = (obj) => {
     return isChecked ? obj.id % 2 === 0 : true;
   };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((irems) => {
+      irems.forEach((item) => {
+        if (item.isIntersecting) {
+          setPageSize((prev) => prev + 10);
+        }
+      });
+    });
+    if (divRef.current && contacts.length > 0) {
+      observer.observe(divRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [contacts]);
 
   return (
     <>
@@ -77,6 +102,7 @@ export default function CustomModal({ title, contacts, handleClick, loading }) {
               </tbody>
             </Table>
           )}
+          <div ref={divRef}></div>
         </Modal.Body>
         <Modal.Footer>
           <label style={{ position: "absolute", left: "15px" }}>
